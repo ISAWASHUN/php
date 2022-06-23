@@ -6,33 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-
-    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">   
   </head>
+
   <body>
 
   <form action="" method="POST">
-  <div class="form-group">
-    <label for="exampleFormControlInput1">お名前</label>
-    <input type="name" class="form-control" id="exampleFormControlInput1" placeholder="お名前" name="your_name">
+  <div class="form-group mt-4">
+    <div class="d-block">
+      <label class="mb-4 ml-4">[ 投稿フォーム ]</label>
+    </div>
+      <label class="ml-4">お名前:</label>
+    
+    <input type="name" class=" mb-4"  placeholder="お名前" name="your_name">
+ 
+    <div class="d-block">
+     <label class="ml-4">コメント:</label>
+    </div>
+    <textarea class="form-control mb-2 ml-4"  rows="3" name="comment"></textarea>
+  
+    <button class="btn btn-primary mt-4 ml-4" type="submit">送信ボタン</button>
+  </div>
+  
+  <div class="d-block ">
+    <div class="d-block">
+      <label class="m-4">[ 削除フォーム ]</label>
+    </div>
+    <label class="ml-4">削除対象番号:</label>
+    <input type="number" class="" name = "delete" placeholder="削除対象番号">
+    <div class="d-block">
+      <label class="ml-4 mt-4">パスワード:</label>
+      <input type="number" class="" name = "delete" placeholder="削除対象番号">
+    </div>
+  <div class="d-block mt-4">
+    <input type="submit" class="btn btn-danger ml-4" name="submit" value = "削除">
+  </div>
   </div>
 
-  <div class="form-group">
-    <label for="exampleFormControlTextarea1">コメント</label>
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="comment"></textarea>
-  </div>
-
-  <button class="btn btn-primary" type="submit">送信ボタン</button>
-
-  <input type="number" name = "delete" placeholder="削除対象番号">
-  <input type="submit" class="btn btn-danger" name="submit" value = "削除">
   </form>
 
   <form action="" method="POST">
-  <input type="number" name = "edit" placeholder="編集対象番号" class="mt-2">
-  <input type="submit" class="btn btn-success mt-2" name="submit" value = "編集">
+    <div class="d-block">
+      <label class="m-4">[ 編集フォーム ]</label>
+    </div>
+  <input type="hidden" name="edit_post" value="">
+  <div class="d-block">
+    <label class="ml-4">編集対象番号:</label>
+    <input type="number" placeholder="編集対象番号" class="">
+    <div class="d-block">
+      <label class="ml-4 mt-4">パスワード:</label>
+      <input type="number" class="" name = "delete" placeholder="削除対象番号">
+    </div>
+  </div>
+  <input type="submit" class="btn btn-success mt-4 ml-4" name="edit" value = "編集">
+  </div>
   </form>
+   
+  <div>
+    <p class="ml-4 mt-4">---------------------------------------------</p>
+    <p class="ml-4">[ 投稿一覧 ]</p>
+  </div>
+
  
 
   <?php
@@ -76,6 +110,62 @@
         }
       }
     }
+
+    // ファイルからデータ読み取り
+	$filename = "m3_01.txt";
+	// オプションのパラメータの意味は
+	// https://www.php.net/manual/ja/function.file.php
+	$lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	
+	// 編集用データ格納変数
+	$editNumber = '';
+	$editName = '';
+	$editComment = '';
+
+	// 送信内容によって処理が分かれる
+	if(isset($_POST["edit"])) {
+		// ここは編集番号よりデータを求める所
+		
+		// データ件数分処理
+		foreach($lines as $row) {
+			// <>で分割して配列に
+			$bbsRowData = explode("<>", $row);
+			// 編集対象番号のときはデータをセットする
+			if($bbsRowData[0] == $_POST["num"]) {
+				$editNumber = $bbsRowData[0];
+				$editName = $bbsRowData[1];
+				$editComment = $bbsRowData[2];
+				// 即抜ける
+				break;
+			}
+		}
+	}
+	else if(isset($_POST["normal"])) {
+		// 書き込みか上書きかをするところ
+		
+		// 書き込むデータを作る
+		$writeData = ($_POST['edit_post'] ?: count($lines) + 1) . "<>" . $_POST['name'] . "<>" . $_POST['comment'];
+		
+		// 編集番号があればデータループして場所を特定して上書きする
+		if($_POST["edit_post"]) {
+			// データ件数分処理(&で参照にしてる)
+			foreach($lines as &$row) {
+				// <>で分割して配列に
+				$bbsRowData = explode("<>", $row);
+				// 編集番号のところだったら上書き
+				if($bbsRowData[0] == $_POST["edit_post"]) {
+					$row = $writeData;
+				}
+			}
+		}
+		else {
+			// 新規投稿なので最後に追加
+			$lines[] = $writeData;
+		}
+		
+		// ファイルに書き込む(implodeで配列を改行付き文字列へ)
+		file_put_contents($filename, implode("", $lines));
+	}
 
 
   ?>

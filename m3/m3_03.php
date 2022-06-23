@@ -45,9 +45,9 @@
         } else {
             $num = 1;
         }
-        $newdate = $num."<>".$name."<>".$comment."<>".$date;
+        $newstring = $num."<>".$name."<>".$comment."<>".$date;
         $fp = fopen($filename, "a");
-        fwrite($fp,$newdate.PHP_EOL);
+        fwrite($fp,$newstring.PHP_EOL);
         fclose($fp);
     }
     
@@ -67,7 +67,7 @@
         /*投稿番号と削除対象番号を比較。等しくない場合はファイルに追加書き込みを行う*/
         if ($delData[0] == $delete) {
           array_splice($delCon, $j, 1);
-          file_put_contents($filename, implode("\n", $delCon));
+          file_put_contents($filename, implode("", $delCon));
         }
       }
     }
