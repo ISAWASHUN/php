@@ -111,10 +111,7 @@
       }
     }
 
-    // ファイルからデータ読み取り
-	$filename = "m3_01.txt";
-	// オプションのパラメータの意味は
-	// https://www.php.net/manual/ja/function.file.php
+    
 	$lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 	
 	// 編集用データ格納変数
